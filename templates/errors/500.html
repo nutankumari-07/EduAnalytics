@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Something went wrong — EduAnalytics{% endblock %}
+{% block content %}
+<div class="error-shell">
+  <div class="error-code">500</div>
+  <h1>Something went wrong on our end</h1>
+  <p>The error has been logged. Please try again in a moment.</p>
+  <a class="btn btn-primary" href="{{ url_for('main.index') }}">Back to dashboard</a>
+</div>
+{% endblock %}
+{% block guest_content %}
+<div class="error-shell">
+  <div class="error-code">500</div>
+  <h1>Something went wrong on our end</h1>
+  <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Go to login</a>
+</div>
+{% endblock %}

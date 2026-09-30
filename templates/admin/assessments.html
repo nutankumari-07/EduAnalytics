@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Assessments — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Assessments</h1><div class="meta">Timed, mixed-difficulty assessments — one comprehensive assessment per subject</div></div></div>
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Title</th><th>Questions</th><th>Time limit</th><th>Attempts</th><th>Avg score</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for a in assessments %}
+      <tr>
+        <td style="font-weight:700;">{{ a.title }}</td>
+        <td class="mono">{{ a.q_count }}</td>
+        <td class="mono">{{ a.time_limit_min }} min</td>
+        <td class="mono">{{ a.attempt_count }}</td>
+        <td class="mono">{{ a.avg_score if a.avg_score is not none else '—' }}{{ '%' if a.avg_score is not none }}</td>
+        <td>{% if a.is_published %}<span class="badge badge-teal">Published</span>{% else %}<span class="badge badge-muted">Hidden</span>{% endif %}</td>
+        <td>
+          <form class="inline" method="post" action="{{ url_for('admin.assessment_toggle', assessment_id=a.id) }}">
+            <button class="btn btn-sm">{{ 'Unpublish' if a.is_published else 'Publish' }}</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

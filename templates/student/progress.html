@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Progress — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Progress</h1><div class="meta">Topic-by-topic completion across every subject you've touched</div></div></div>
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Subject</th><th>Topic</th><th>Materials</th><th>Questions</th><th>Score</th><th>Progress</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.subject_name }}</td>
+        <td><a href="{{ url_for('student.topic_detail', topic_id=r.topic_id) }}">{{ r.topic_name }}</a></td>
+        <td class="mono">{{ r.materials_done }}/{{ r.materials_total }}</td>
+        <td class="mono">{{ r.answers_correct }}/{{ r.answers_graded }}</td>
+        <td class="mono">{{ r.score if r.score is not none else '—' }}</td>
+        <td style="min-width:140px;">
+          <div class="progress-track"><div class="progress-fill" style="width:{{ r.progress_pct }}%;"></div></div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+    <div class="empty-note">No progress recorded yet — open a topic and start learning.</div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if material else 'New' }} Material — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('admin.materials', topic_id=topic.id) }}">{{ topic.name }} Materials</a> / {{ 'Edit' if material else 'New' }}</div>
+<div class="page-head"><div><h1>{{ 'Edit material' if material else 'New material' }}</h1></div></div>
+<div class="card" style="max-width:640px;">
+  <form method="post">
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" required value="{{ material.title if material else '' }}">
+    <label for="description">Short description</label>
+    <input type="text" id="description" name="description" value="{{ material.description if material else '' }}">
+    <div class="form-row">
+      <div>
+        <label for="type">Type</label>
+        <select id="type" name="type">
+          {% for t in ['notes','article','video','pdf','practice'] %}
+          <option value="{{ t }}" {{ 'selected' if material and material.type==t }}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="est_minutes">Estimated minutes</label>
+        <input type="number" id="est_minutes" name="est_minutes" min="1" value="{{ material.est_minutes if material else 10 }}">
+      </div>
+    </div>
+    <label for="url">URL (required for article / video / pdf — must be a real, working link)</label>
+    <input type="url" id="url" name="url" value="{{ material.url if material else '' }}" placeholder="https://...">
+    <label for="content">In-app content (for "notes" type)</label>
+    <textarea id="content" name="content" style="min-height:140px;">{{ material.content if material else '' }}</textarea>
+    <div class="checkbox-row">
+      <input type="checkbox" id="is_recommended" name="is_recommended" {{ 'checked' if material and material.is_recommended }}>
+      <label for="is_recommended" style="margin:0;">Recommended (shown first / prioritized in recommendations)</label>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px;" type="submit">{{ 'Save changes' if material else 'Create material' }}</button>
+  </form>
+</div>
+{% endblock %}

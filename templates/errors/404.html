@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Page not found — EduAnalytics{% endblock %}
+{% block content %}
+<div class="error-shell">
+  <div class="error-code">404</div>
+  <h1>That page doesn't exist</h1>
+  <p>The link may be broken, or the content may have moved. Nothing here is a dead end by design — let's get you back on track.</p>
+  <a class="btn btn-primary" href="{{ url_for('main.index') }}">Back to dashboard</a>
+</div>
+{% endblock %}
+{% block guest_content %}
+<div class="error-shell">
+  <div class="error-code">404</div>
+  <h1>That page doesn't exist</h1>
+  <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Go to login</a>
+</div>
+{% endblock %}

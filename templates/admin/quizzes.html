@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Quizzes — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Quizzes</h1><div class="meta">{{ quizzes|length }} quizzes — one per topic, auto-generated from the question bank</div></div></div>
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Title</th><th>Subject</th><th>Questions</th><th>Attempts</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for q in quizzes %}
+      <tr>
+        <td style="font-weight:700;">{{ q.title }}</td>
+        <td>{{ q.subject_name }}</td>
+        <td class="mono">{{ q.q_count }}</td>
+        <td class="mono">{{ q.attempt_count }}</td>
+        <td>{% if q.is_published %}<span class="badge badge-teal">Published</span>{% else %}<span class="badge badge-muted">Hidden</span>{% endif %}</td>
+        <td>
+          <form class="inline" method="post" action="{{ url_for('admin.quiz_toggle', quiz_id=q.id) }}">
+            <button class="btn btn-sm">{{ 'Unpublish' if q.is_published else 'Publish' }}</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

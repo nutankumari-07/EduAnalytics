@@ -1,0 +1,71 @@
+{# Server-rendered charts (inline SVG/CSS). No JavaScript or CDN needed, so they always draw. #}
+
+{% macro donut(items, size=200) %}
+{# items: list of (label, value, color). #}
+{% set total = items|sum(attribute=1) %}
+{% set r = 70 %}{% set c = 2 * 3.14159265 * r %}
+{% if total > 0 %}
+<div class="chart-donut">
+  <svg viewBox="0 0 200 200" width="{{ size }}" height="{{ size }}" role="img" aria-label="Distribution chart">
+    <circle cx="100" cy="100" r="{{ r }}" fill="none" stroke="#232A38" stroke-width="28"/>
+    {% set ns = namespace(offset=0) %}
+    {% for label, value, color in items %}{% if value > 0 %}
+      {% set seg = value / total * c %}
+      <circle cx="100" cy="100" r="{{ r }}" fill="none" stroke="{{ color }}" stroke-width="28"
+              stroke-dasharray="{{ '%.2f'|format(seg) }} {{ '%.2f'|format(c - seg) }}"
+              stroke-dashoffset="{{ '%.2f'|format(-ns.offset) }}" transform="rotate(-90 100 100)"/>
+      {% set ns.offset = ns.offset + seg %}
+    {% endif %}{% endfor %}
+    <text x="100" y="98" text-anchor="middle" fill="#E8ECF4" font-size="26" font-weight="700">{{ total }}</text>
+    <text x="100" y="118" text-anchor="middle" fill="#9BA3B4" font-size="11">students</text>
+  </svg>
+  <div class="chart-legend">
+    {% for label, value, color in items %}
+    <div><span class="dot" style="background:{{ color }};"></span>{{ label }}
+      <strong class="mono">{{ value }}</strong>
+      <span style="color:var(--text-faint);">({{ (value / total * 100)|round(1) }}%)</span></div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}<div class="empty-note">No data yet.</div>{% endif %}
+{% endmacro %}
+
+{% macro hbars(rows, label_key, value_key, note_key=None, note_suffix='', color='#22C4A6', label_width='240px') %}
+{# rows: DB rows / dicts; value_key column holds a 0-100 percentage. #}
+{% for row in rows %}
+{% set value = row[value_key] or 0 %}
+<div class="imp-bar-row" style="grid-template-columns:{{ label_width }} 1fr 110px;">
+  <div class="imp-label">{{ row[label_key] }}</div>
+  <div class="imp-track"><div class="imp-fill" style="width:{{ [value, 100]|min }}%; background:{{ color }};"></div></div>
+  <div class="mono">{{ value }}%{% if note_key %} <span style="color:var(--text-faint);">· {{ row[note_key] }}{{ note_suffix }}</span>{% endif %}</div>
+</div>
+{% endfor %}
+{% endmacro %}
+
+{% macro linechart(rows, x_key, y_key, color='#7C8CF8') %}
+{# rows: DB rows / dicts; y_key holds a 0-100 percentage, x_key an ISO date. #}
+{% set n = rows|length %}
+{% set W = 640 %}{% set H = 240 %}{% set L = 40 %}{% set R = 12 %}{% set T = 12 %}{% set B = 30 %}
+{% set pw = W - L - R %}{% set ph = H - T - B %}
+<svg viewBox="0 0 {{ W }} {{ H }}" width="100%" role="img" aria-label="Score trend" style="max-width:100%;height:auto;">
+  {% for g in [0, 25, 50, 75, 100] %}
+    {% set y = T + ph - (g / 100 * ph) %}
+    <line x1="{{ L }}" y1="{{ y }}" x2="{{ W - R }}" y2="{{ y }}" stroke="#232A38"/>
+    <text x="{{ L - 6 }}" y="{{ y + 4 }}" text-anchor="end" fill="#9BA3B4" font-size="11">{{ g }}</text>
+  {% endfor %}
+  {% set xs = [] %}{% set ys = [] %}
+  {% for row in rows %}
+    {% set value = row[y_key] or 0 %}
+    {% set x = L + (pw * loop.index0 / (n - 1 if n > 1 else 1)) %}
+    {% set y = T + ph - ([value, 100]|min / 100 * ph) %}
+    {% if xs.append(x) %}{% endif %}{% if ys.append(y) %}{% endif %}
+  {% endfor %}
+  {% set pts = [] %}{% for i in range(n) %}{% if pts.append('%.1f,%.1f'|format(xs[i], ys[i])) %}{% endif %}{% endfor %}
+  <polygon points="{{ L }},{{ T + ph }} {{ pts|join(' ') }} {{ xs[-1] }},{{ T + ph }}" fill="{{ color }}" opacity=".15"/>
+  <polyline points="{{ pts|join(' ') }}" fill="none" stroke="{{ color }}" stroke-width="2.4" stroke-linejoin="round"/>
+  {% for i in range(n) %}<circle cx="{{ xs[i] }}" cy="{{ ys[i] }}" r="3.4" fill="{{ color }}"><title>{{ rows[i][x_key] }}: {{ rows[i][y_key] }}%</title></circle>{% endfor %}
+  {% for i in range(n) %}{% if i == 0 or i == n - 1 or i == (n // 2) %}
+    <text x="{{ xs[i] }}" y="{{ H - 8 }}" text-anchor="{{ 'start' if i == 0 else ('end' if i == n - 1 else 'middle') }}" fill="#9BA3B4" font-size="11">{{ rows[i][x_key][5:] }}</text>
+  {% endif %}{% endfor %}
+</svg>
+{% endmacro %}

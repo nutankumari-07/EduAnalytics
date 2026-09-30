@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Create account — EduAnalytics{% endblock %}
+{% block guest_content %}
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="brand" style="padding:0 0 18px;">
+      <div class="brand-mark">EA</div>
+      <div>
+        <div class="brand-name">EduAnalytics</div>
+        <div class="brand-sub">Personalized learning pathways</div>
+      </div>
+    </div>
+    <h1 style="font-size:19px;">Create your student account</h1>
+    <p style="margin-bottom:18px;">You'll be enrolled in every subject and can start practicing right away.</p>
+    <form method="post">
+      <label for="name">Full name</label>
+      <input type="text" id="name" name="name" required autofocus value="{{ name or '' }}">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required value="{{ email or '' }}">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required minlength="6">
+      <label for="confirm_password">Confirm password</label>
+      <input type="password" id="confirm_password" name="confirm_password" required minlength="6">
+      <button class="btn btn-primary btn-block" style="margin-top:20px;" type="submit">Create account</button>
+    </form>
+    <p style="font-size:13px;margin-top:14px;">Already have an account? <a href="{{ url_for('auth.login') }}" style="color:var(--teal);font-weight:700;">Log in</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}ML Analytics — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>ML Analytics</h1><div class="meta">{% if metrics %}Selected model: {{ metrics.model_name }}{% else %}Model not trained yet{% endif %}</div></div>
+  <form method="post" action="{{ url_for('admin.ml_retrain') }}" onsubmit="return confirm('Retrain and re-compare all models on the current student data in the database?');">
+    <button class="btn btn-primary">Retrain &amp; compare models</button>
+  </form>
+</div>
+
+{% if not metrics %}
+<div class="card"><div class="empty-note">No trained model found. Click "Retrain &amp; compare models" to train from the student database.</div></div>
+{% else %}
+<div class="card" style="margin-bottom:18px;">
+  <h3>Selected model: {{ metrics.model_name }}</h3>
+  <div class="mono" style="margin-bottom:8px;color:var(--text-dim);">Selection criterion: {{ metrics.selection_criterion }}</div>
+  <p style="max-width:900px;"><strong>Why it was selected:</strong> {{ metrics.selection_reason }}</p>
+  <p style="max-width:900px;font-size:13px;color:var(--text-faint);">
+    Task: {{ metrics.target }}. The model predicts a student's overall performance level only. Topic-level learning gaps are detected
+    separately with score thresholds, and recommendations combine both.
+    Predictions are shown only for students with a completed profile and enough activity ({{ metrics.min_activity_for_prediction }}).
+  </p>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card accent-high"><div class="num">{{ (metrics.accuracy*100)|round(1) }}%</div><div class="label">Accuracy</div></div>
+  <div class="stat-card"><div class="num">{{ (metrics.precision*100)|round(1) }}%</div><div class="label">Precision (weighted)</div></div>
+  <div class="stat-card"><div class="num">{{ (metrics.recall*100)|round(1) }}%</div><div class="label">Recall (weighted)</div></div>
+  <div class="stat-card"><div class="num">{{ (metrics.f1*100)|round(1) }}%</div><div class="label">F1 score (weighted)</div></div>
+  <div class="stat-card"><div class="num">{{ (metrics.cv_f1_mean*100)|round(1) }}%</div><div class="label">CV weighted F1 (&plusmn; {{ (metrics.cv_f1_std*100)|round(1) }})</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Training run</h3>
+    <div class="table-wrap"><table class="data-table"><tbody>
+      <tr><td>Trained on</td><td class="mono">{{ metrics.trained_at }}</td></tr>
+      <tr><td>Dataset size</td><td class="mono">{{ metrics.dataset_size }} students (train {{ metrics.train_size }} / test {{ metrics.test_size }})</td></tr>
+      <tr><td>Class distribution</td><td class="mono">{% for k, v in metrics.class_distribution.items() %}{{ k }} {{ v }}{{ ', ' if not loop.last }}{% endfor %}</td></tr>
+      <tr><td>Split</td><td class="mono">{{ metrics.split }}</td></tr>
+      <tr><td>Cross-validation</td><td class="mono">{{ metrics.cv_folds }}-fold stratified, on the training part</td></tr>
+      <tr><td>Preprocessing</td><td class="mono">{{ metrics.preprocessing }}</td></tr>
+      <tr><td>Data source</td><td>{{ metrics.dataset_source }}</td></tr>
+      <tr><td>Library</td><td class="mono">{{ metrics.library }}</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="card">
+    <h3>Feature importance</h3>
+    {% for f in metrics.feature_importance %}
+    <div class="imp-bar-row">
+      <div class="imp-label">{{ f.label }}</div>
+      <div class="imp-track"><div class="imp-fill" style="width:{{ [(f.importance*100*3)|round(0)|int, 100]|min }}%;"></div></div>
+      <div class="mono">{{ (f.importance*100)|round(1) }}%</div>
+    </div>
+    {% endfor %}
+    <div class="empty-note">Method: {{ metrics.feature_importance_method }}. Shares are normalised to sum to 100%.</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Confusion matrix (test set)</h3>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Actual \ Predicted</th>{% for l in metrics.labels %}<th>{{ l }}</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for row in metrics.confusion_matrix %}
+        <tr><td style="font-weight:700;">{{ metrics.labels[loop.index0] }}</td>{% for v in row %}<td class="mono">{{ v }}</td>{% endfor %}</tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    <div class="empty-note">Cross-validated accuracy: {{ (metrics.cv_accuracy_mean*100)|round(1) }}%.</div>
+  </div>
+  <div class="card">
+    <h3>Per-class metrics</h3>
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Support</th></tr></thead>
+      <tbody>{% for c in metrics.per_class %}<tr><td>{{ c.label }}</td><td class="mono">{{ c.precision }}</td><td class="mono">{{ c.recall }}</td><td class="mono">{{ c.f1 }}</td><td class="mono">{{ c.support }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Model comparison ({{ metrics.model_comparison|length }} models, same data, features, preprocessing and split)</h3>
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>Weighted F1</th><th>CV F1 mean</th><th>CV F1 std</th></tr></thead>
+    <tbody>{% for m in metrics.model_comparison %}
+      <tr {% if m.selected %}style="background:rgba(34,196,166,.10);"{% endif %}>
+        <td>{{ m.name }}{% if m.selected %} <span class="badge badge-teal">selected</span>{% endif %}</td>
+        <td class="mono">{{ m.accuracy }}</td><td class="mono">{{ m.precision }}</td><td class="mono">{{ m.recall }}</td>
+        <td class="mono">{{ m.f1 }}</td><td class="mono">{{ m.cv_f1_mean }}</td><td class="mono">{{ m.cv_f1_std }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% if metrics.models_skipped %}<div class="empty-note">Not evaluated: {% for s in metrics.models_skipped %}{{ s.name }} ({{ s.reason }}){{ '; ' if not loop.last }}{% endfor %}.</div>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

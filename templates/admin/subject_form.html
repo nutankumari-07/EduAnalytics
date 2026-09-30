@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if subject else 'New' }} Subject — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('admin.subjects') }}">Subjects</a> / {{ 'Edit' if subject else 'New' }}</div>
+<div class="page-head"><div><h1>{{ 'Edit subject' if subject else 'New subject' }}</h1></div></div>
+<div class="card" style="max-width:560px;">
+  <form method="post" enctype="multipart/form-data">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required value="{{ subject.name if subject else '' }}">
+    <label for="category">Category</label>
+    <input type="text" id="category" name="category" value="{{ subject.category if subject else '' }}">
+    <label for="description">Description</label>
+    <textarea id="description" name="description">{{ subject.description if subject else '' }}</textarea>
+    <label for="image">Cover image</label>
+    {% if subject %}
+      <div style="width:120px;height:72px;border-radius:8px;background-size:cover;background-position:center;background-image:url('{{ url_for('static', filename=subject.image_path) }}');margin-bottom:8px;"></div>
+    {% endif %}
+    <input type="file" id="image" name="image" accept="image/*">
+    <div class="form-hint">Leave blank to keep the current cover image / default artwork.</div>
+    <button class="btn btn-primary" style="margin-top:18px;" type="submit">{{ 'Save changes' if subject else 'Create subject' }}</button>
+  </form>
+</div>
+{% endblock %}

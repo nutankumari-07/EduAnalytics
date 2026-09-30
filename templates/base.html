@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}EduAnalytics{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block head_extra %}{% endblock %}
+</head>
+<body>
+{% if session.get('user_id') %}
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">EA</div>
+      <div>
+        <div class="brand-name">EduAnalytics</div>
+        <div class="brand-sub">Learning pathways</div>
+      </div>
+    </div>
+
+    {% if session.get('role') == 'student' %}
+      <div class="nav-section-label">Learn</div>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.dashboard' }}" href="{{ url_for('student.dashboard') }}"><span class="ic">&#9673;</span> Dashboard</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.subjects' }}" href="{{ url_for('student.subjects') }}"><span class="ic">&#9776;</span> Subjects</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.history' }}" href="{{ url_for('student.history') }}"><span class="ic">&#9201;</span> Practice &amp; Assessments</a>
+      <div class="nav-section-label">Insights</div>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.performance' }}" href="{{ url_for('student.performance') }}"><span class="ic">&#9670;</span> Performance</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.learning_gaps' }}" href="{{ url_for('student.learning_gaps') }}"><span class="ic">&#9888;</span> Learning Gaps</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.recommendations' }}" href="{{ url_for('student.recommendations') }}"><span class="ic">&#9733;</span> Recommendations</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.progress' }}" href="{{ url_for('student.progress') }}"><span class="ic">&#9650;</span> Progress</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.history' }}" href="{{ url_for('student.history') }}"><span class="ic">&#128337;</span> History</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'student.profile' }}" href="{{ url_for('student.profile') }}"><span class="ic">&#9881;</span> Profile</a>
+    {% else %}
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.dashboard' }}" href="{{ url_for('admin.dashboard') }}"><span class="ic">&#9673;</span> Dashboard</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.students' or request.endpoint == 'admin.student_detail' }}" href="{{ url_for('admin.students') }}"><span class="ic">&#128101;</span> Students</a>
+      <div class="nav-section-label">Content</div>
+      <a class="nav-link {{ 'active' if request.endpoint in ['admin.subjects','admin.topics','admin.materials'] }}" href="{{ url_for('admin.subjects') }}"><span class="ic">&#9776;</span> Subjects &amp; Topics</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.questions' }}" href="{{ url_for('admin.questions') }}"><span class="ic">&#10067;</span> Question Bank</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.quizzes' }}" href="{{ url_for('admin.quizzes') }}"><span class="ic">&#9998;</span> Quizzes</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.assessments' }}" href="{{ url_for('admin.assessments') }}"><span class="ic">&#9201;</span> Assessments</a>
+      <div class="nav-section-label">Insights</div>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.analytics' }}" href="{{ url_for('admin.analytics') }}"><span class="ic">&#9650;</span> Results &amp; Analytics</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.learning_gaps' }}" href="{{ url_for('admin.learning_gaps') }}"><span class="ic">&#9888;</span> Learning Gaps</a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'admin.recommendations' }}" href="{{ url_for('admin.recommendations') }}"><span class="ic">&#9733;</span> Recommendations</a>
+      <a class="nav-link {{ 'active' if request.endpoint in ['admin.ml_analytics'] }}" href="{{ url_for('admin.ml_analytics') }}"><span class="ic">&#9881;</span> ML Analytics</a>
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-link {{ 'active' if request.endpoint in ['admin.accounts','admin.account_new'] }}" href="{{ url_for('admin.accounts') }}"><span class="ic">&#128273;</span> Account Management</a>
+    {% endif %}
+
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <div class="user-avatar">{{ session.get('name','?')[0]|upper }}</div>
+        <div class="user-meta">
+          <div class="user-name">{{ session.get('name') }}</div>
+          <div class="user-role">{{ session.get('role') }}</div>
+        </div>
+      </div>
+      <a class="logout-link" href="{{ url_for('auth.logout') }}">&larr; Log out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      {% if session.get('role') == 'student' %}
+      <form class="search-box" action="{{ url_for('student.search') }}" method="get">
+        <input type="text" name="q" placeholder="Search subjects, topics, materials..." value="{{ request.args.get('q','') }}">
+      </form>
+      {% else %}
+      <div></div>
+      {% endif %}
+      <div class="topbar-right">
+        {% if session.get('role') == 'student' %}
+        <a class="bell" href="{{ url_for('student.dashboard') }}#notifications" title="Notifications">
+          &#128276;
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if get_flashed_messages() %}
+    <div class="flash-wrap">
+      {% for category, message in get_flashed_messages(with_categories=true) %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% else %}
+  {% if get_flashed_messages() %}
+  <div class="flash-wrap" style="max-width:400px;margin:16px auto 0;">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% block guest_content %}{% endblock %}
+{% endif %}
+{% block scripts_extra %}{% endblock %}
+</body>
+</html>

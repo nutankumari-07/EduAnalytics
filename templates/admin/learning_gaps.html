@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Learning Gaps — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Learning Gaps</h1><div class="meta">{{ gaps|length }} active gap(s) across all students</div></div></div>
+<div class="tabs">
+  <a class="tab {{ 'active' if not severity }}" href="{{ url_for('admin.learning_gaps') }}">All</a>
+  <a class="tab {{ 'active' if severity=='High' }}" href="{{ url_for('admin.learning_gaps', severity='High') }}">High</a>
+  <a class="tab {{ 'active' if severity=='Medium' }}" href="{{ url_for('admin.learning_gaps', severity='Medium') }}">Medium</a>
+  <a class="tab {{ 'active' if severity=='Low' }}" href="{{ url_for('admin.learning_gaps', severity='Low') }}">Low</a>
+</div>
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Student</th><th>Topic</th><th>Subject</th><th>Severity</th><th>Score</th><th>Issue</th></tr></thead>
+    <tbody>
+    {% for g in gaps %}
+      <tr>
+        <td><a href="{{ url_for('admin.student_detail', user_id=g.user_id) }}">{{ g.student_name }}</a></td>
+        <td>{{ g.topic_name }}</td>
+        <td>{{ g.subject_name }}</td>
+        <td><span class="badge {{ 'badge-coral' if g.severity=='High' else ('badge-amber' if g.severity=='Medium' else 'badge-teal') }}">{{ g.severity }}</span></td>
+        <td class="mono">{{ g.score }}%</td>
+        <td style="max-width:340px;font-size:12.4px;color:var(--text-dim);">{{ g.observed_issue }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6"><div class="empty-note">No active learning gaps.</div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

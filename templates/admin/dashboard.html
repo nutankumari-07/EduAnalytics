@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "_charts.html" import donut %}
+{% block title %}Admin Dashboard — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Admin Dashboard</h1><div class="meta">Platform-wide overview, driven live from the database</div></div></div>
+
+<div class="stat-row">
+  <div class="stat-card"><div class="num">{{ stats.students }}</div><div class="label">Students</div></div>
+  <div class="stat-card"><div class="num">{{ stats.subjects }}</div><div class="label">Subjects</div></div>
+  <div class="stat-card"><div class="num">{{ stats.questions }}</div><div class="label">Questions in bank</div></div>
+  <div class="stat-card"><div class="num">{{ stats.attempts }}</div><div class="label">Attempts submitted</div></div>
+</div>
+<div class="stat-row">
+  <div class="stat-card"><div class="num">{{ stats.avg_score }}%</div><div class="label">Platform average score</div></div>
+  <div class="stat-card {{ 'accent-low' if stats.active_gaps>0 }}"><div class="num">{{ stats.active_gaps }}</div><div class="label">Active learning gaps</div></div>
+  <div class="stat-card {{ 'accent-low' if pending_gaps>0 }}"><div class="num">{{ pending_gaps }}</div><div class="label">High-severity gaps</div></div>
+  <div class="stat-card"><div class="num">{{ level_dist.High }}</div><div class="label">Students predicted "High"</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Performance level distribution</h3>
+    {% if stats.students > 0 %}{{ donut([('Low', level_dist.Low, '#E0637A'), ('Medium', level_dist.Medium, '#E0A23B'), ('High', level_dist.High, '#22C4A6')]) }}
+    {% if level_dist.Pending %}<div class="empty-note">{{ level_dist.Pending }} student(s) pending: not enough activity or profile data for a prediction yet.</div>{% endif %}
+    {% else %}<div class="empty-note">No students yet.</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Most common weak topics</h3>
+    {% if weak_topics %}
+      {% for w in weak_topics %}
+      <div class="imp-bar-row" style="grid-template-columns:1fr 90px 40px;">
+        <div class="imp-label">{{ w.name }} <span style="color:var(--text-faint);">({{ w.subject_name }})</span></div>
+        <div class="imp-track"><div class="imp-fill" style="width:{{ (w.c / weak_topics[0].c * 100)|round(0)|int }}%; background:#E0637A;"></div></div>
+        <div class="mono">{{ w.c }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-note">No active learning gaps recorded across any student — nothing to flag right now.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Recently registered students</h3>
+    {% if recent_students %}
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Name</th><th>Code</th><th>Joined</th></tr></thead>
+        <tbody>
+        {% for s in recent_students %}
+          <tr><td><a href="{{ url_for('admin.student_detail', user_id=s.id) }}">{{ s.name }}</a></td><td class="mono">{{ s.student_code or '—' }}</td><td style="color:var(--text-faint);">{{ s.created_at[:10] }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+    {% else %}<div class="empty-note">No students yet.</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Quick actions</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a class="btn" href="{{ url_for('admin.subjects') }}">Manage subjects &amp; topics</a>
+      <a class="btn" href="{{ url_for('admin.questions') }}">Manage question bank</a>
+      <a class="btn" href="{{ url_for('admin.learning_gaps') }}">Review learning gaps</a>
+      <a class="btn" href="{{ url_for('admin.ml_analytics') }}">View ML analytics</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if question else 'New' }} Question — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('admin.questions', topic_id=topic.id) }}">{{ topic.name }} Questions</a> / {{ 'Edit' if question else 'New' }}</div>
+<div class="page-head"><div><h1>{{ 'Edit question' if question else 'New question' }}</h1></div></div>
+<div class="card" style="max-width:680px;">
+  <form method="post">
+    <label for="text">Question text</label>
+    <textarea id="text" name="text" required>{{ question.text if question else '' }}</textarea>
+    <div class="form-row">
+      <div><label for="option_a">Option A</label><input type="text" id="option_a" name="option_a" required value="{{ question.option_a if question else '' }}"></div>
+      <div><label for="option_b">Option B</label><input type="text" id="option_b" name="option_b" required value="{{ question.option_b if question else '' }}"></div>
+    </div>
+    <div class="form-row">
+      <div><label for="option_c">Option C</label><input type="text" id="option_c" name="option_c" required value="{{ question.option_c if question else '' }}"></div>
+      <div><label for="option_d">Option D</label><input type="text" id="option_d" name="option_d" required value="{{ question.option_d if question else '' }}"></div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label for="correct_option">Correct option</label>
+        <select id="correct_option" name="correct_option">
+          {% for l in ['A','B','C','D'] %}<option value="{{ l }}" {{ 'selected' if question and question.correct_option==l }}>{{ l }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty" name="difficulty">
+          {% for d in ['Easy','Medium','Hard'] %}<option value="{{ d }}" {{ 'selected' if question and question.difficulty==d }}>{{ d }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <label for="explanation">Explanation (shown after submission)</label>
+    <textarea id="explanation" name="explanation" required>{{ question.explanation if question else '' }}</textarea>
+    <button class="btn btn-primary" style="margin-top:18px;" type="submit">{{ 'Save changes' if question else 'Add question' }}</button>
+  </form>
+</div>
+{% endblock %}

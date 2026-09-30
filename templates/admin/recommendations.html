@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Recommendations — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Recommendations</h1><div class="meta">{{ recs|length }} active, system-generated recommendation(s) across all students</div></div></div>
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Student</th><th>Recommendation</th><th>Topic</th><th>Reason</th><th>Priority</th></tr></thead>
+    <tbody>
+    {% for r in recs %}
+      <tr>
+        <td><a href="{{ url_for('admin.student_detail', user_id=r.user_id) }}">{{ r.student_name }}</a></td>
+        <td style="font-weight:700;">{{ r.title }}</td>
+        <td>{{ r.topic_name or '—' }}</td>
+        <td style="max-width:320px;font-size:12.4px;color:var(--text-dim);">{{ r.reason }}</td>
+        <td class="mono">{{ r.priority }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5"><div class="empty-note">No active recommendations.</div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

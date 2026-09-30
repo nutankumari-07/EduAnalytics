@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ attempt.title }} — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ attempt.title }}</h1>
+    <div class="meta">{{ questions|length }} questions &middot; {{ attempt.kind|capitalize }} &middot; answer every question, then submit</div>
+  </div>
+  {% if attempt.time_limit_sec %}<div class="timer-chip" id="timer">--:--</div>{% endif %}
+</div>
+
+<form method="post" id="attempt-form">
+<input type="hidden" name="elapsed_sec" id="elapsed_sec" value="0">
+{% for q in questions %}
+<div class="card" style="margin-bottom:14px;">
+  <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+    <strong style="font-size:14.2px;">{{ loop.index }}. {{ q.text }}</strong>
+    <span class="badge pill-diff-{{ q.difficulty }}">{{ q.difficulty }}</span>
+  </div>
+  {% for letter, val in [('A', q.option_a), ('B', q.option_b), ('C', q.option_c), ('D', q.option_d)] %}
+  <label class="q-option">
+    <input type="radio" name="q_{{ q.id }}" value="{{ letter }}" {{ 'checked' if q.selected_option == letter }} required>
+    {{ val }}
+  </label>
+  {% endfor %}
+</div>
+{% endfor %}
+<button class="btn btn-primary btn-block" type="submit">Submit {{ attempt.kind }}</button>
+</form>
+
+{% if attempt.time_limit_sec %}
+<script>
+(function() {
+  let remaining = {{ attempt.time_limit_sec }};
+  const elapsedStart = 0;
+  const timerEl = document.getElementById('timer');
+  const form = document.getElementById('attempt-form');
+  function render() {
+    const m = Math.floor(remaining / 60), s = remaining % 60;
+    timerEl.textContent = m + ':' + String(s).padStart(2, '0');
+  }
+  render();
+  const iv = setInterval(function() {
+    remaining -= 1;
+    render();
+    if (remaining <= 0) {
+      clearInterval(iv);
+      document.getElementById('elapsed_sec').value = {{ attempt.time_limit_sec }};
+      form.submit();
+    }
+  }, 1000);
+  form.addEventListener('submit', function() {
+    document.getElementById('elapsed_sec').value = {{ attempt.time_limit_sec }} - remaining;
+  });
+})();
+</script>
+{% else %}
+<script>
+(function() {
+  const start = Date.now();
+  document.getElementById('attempt-form').addEventListener('submit', function() {
+    document.getElementById('elapsed_sec').value = Math.round((Date.now() - start) / 1000);
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

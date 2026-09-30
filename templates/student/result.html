@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Result — {{ attempt.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ attempt.title }}</h1><div class="meta">Submitted {{ attempt.submitted_at }}</div></div></div>
+
+<div class="stat-row">
+  <div class="stat-card {{ 'accent-high' if attempt.percentage>=75 else ('accent-medium' if attempt.percentage>=50 else 'accent-low') }}">
+    <div class="num">{{ attempt.percentage }}%</div><div class="label">Score</div>
+  </div>
+  <div class="stat-card"><div class="num">{{ attempt.obtained_marks }}/{{ attempt.total_marks }}</div><div class="label">Marks</div></div>
+  <div class="stat-card"><div class="num">{{ attempt.accuracy }}%</div><div class="label">Accuracy</div></div>
+  <div class="stat-card"><div class="num">{{ (attempt.duration_sec/60)|round(1) }}m</div><div class="label">Time taken</div></div>
+</div>
+
+<div class="card">
+  <h3>Question breakdown</h3>
+  {% for a in answers %}
+  <div style="padding:14px 0;border-bottom:1px solid var(--border-soft);">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <strong style="font-size:13.8px;">{{ loop.index }}. {{ a.text }}</strong>
+      <span class="badge {{ 'badge-teal' if a.is_correct else 'badge-coral' }}">{{ 'Correct' if a.is_correct else 'Incorrect' if a.is_correct is not none else 'Unanswered' }}</span>
+    </div>
+    {% for letter, val in [('A', a.option_a), ('B', a.option_b), ('C', a.option_c), ('D', a.option_d)] %}
+      <div class="q-option {{ 'correct' if letter == a.correct_option else ('wrong' if letter == a.selected_option and letter != a.correct_option) }}" style="cursor:default;">
+        {{ val }} {% if letter == a.correct_option %}<span style="margin-left:auto;color:var(--teal);">&#10003;</span>{% elif letter == a.selected_option %}<span style="margin-left:auto;color:var(--coral);">&#10007;</span>{% endif %}
+      </div>
+    {% endfor %}
+    <div style="font-size:12.6px;color:var(--text-faint);margin-top:4px;"><strong style="color:var(--text-dim);">Why:</strong> {{ a.explanation }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

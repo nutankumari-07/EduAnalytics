@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Log in — EduAnalytics{% endblock %}
+{% block guest_content %}
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="brand" style="padding:0 0 18px;">
+      <div class="brand-mark">EA</div>
+      <div>
+        <div class="brand-name">EduAnalytics</div>
+        <div class="brand-sub">Personalized learning pathways</div>
+      </div>
+    </div>
+    <h1 style="font-size:19px;">Welcome back</h1>
+    <p style="margin-bottom:18px;">Log in to continue your learning journey.</p>
+    <form method="post">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required autofocus value="{{ request.form.get('email','') }}">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+      <button class="btn btn-primary btn-block" style="margin-top:20px;" type="submit">Log in</button>
+    </form>
+    <div class="divider"></div>
+    <p style="font-size:12.5px;">Demo accounts — student: <span class="mono">student@eduanalytics.com</span> / <span class="mono">student123</span> &middot; admin: <span class="mono">admin@eduanalytics.com</span> / <span class="mono">admin123</span></p>
+    <p style="font-size:13px;">New here? <a href="{{ url_for('auth.register') }}" style="color:var(--teal);font-weight:700;">Create a student account</a></p>
+  </div>
+</div>
+{% endblock %}

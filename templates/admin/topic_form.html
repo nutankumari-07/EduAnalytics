@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if topic else 'New' }} Topic — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('admin.subjects') }}">Subjects</a> / <a href="{{ url_for('admin.topics', subject_id=subject.id) }}">{{ subject.name }}</a> / {{ 'Edit' if topic else 'New' }}</div>
+<div class="page-head"><div><h1>{{ 'Edit topic' if topic else 'New topic' }}</h1></div></div>
+<div class="card" style="max-width:560px;">
+  <form method="post">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required value="{{ topic.name if topic else '' }}">
+    <label for="description">Description</label>
+    <textarea id="description" name="description">{{ topic.description if topic else '' }}</textarea>
+    <label for="difficulty">Difficulty</label>
+    <select id="difficulty" name="difficulty">
+      {% for d in ['Beginner','Intermediate','Advanced'] %}
+      <option value="{{ d }}" {{ 'selected' if topic and topic.difficulty==d }}>{{ d }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-primary" style="margin-top:18px;" type="submit">{{ 'Save changes' if topic else 'Create topic' }}</button>
+  </form>
+</div>
+{% endblock %}

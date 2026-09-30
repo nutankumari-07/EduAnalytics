@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Question Bank — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Question Bank</h1><div class="meta">{{ total }} question(s) matching your filters</div></div></div>
+
+<form method="get" class="card" style="margin-bottom:16px;">
+  <div class="form-row" style="grid-template-columns:1fr 1fr 1fr 2fr;gap:12px;">
+    <div>
+      <label for="subject_id">Subject</label>
+      <select id="subject_id" name="subject_id" onchange="this.form.submit()">
+        <option value="">All subjects</option>
+        {% for s in subjects %}<option value="{{ s.id }}" {{ 'selected' if subject_id==s.id }}>{{ s.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="topic_id">Topic</label>
+      <select id="topic_id" name="topic_id" onchange="this.form.submit()">
+        <option value="">All topics</option>
+        {% for t in topics %}<option value="{{ t.id }}" {{ 'selected' if topic_id==t.id }}>{{ t.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty" name="difficulty" onchange="this.form.submit()">
+        <option value="">All</option>
+        {% for d in ['Easy','Medium','Hard'] %}<option value="{{ d }}" {{ 'selected' if difficulty==d }}>{{ d }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="q">Search text</label>
+      <input type="text" id="q" name="q" value="{{ q }}" placeholder="Search question text...">
+    </div>
+  </div>
+</form>
+
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Question</th><th>Subject / Topic</th><th>Difficulty</th><th>Marks</th><th></th></tr></thead>
+    <tbody>
+    {% for q_ in questions %}
+      <tr>
+        <td style="max-width:420px;">{{ q_.text[:100] }}{{ '…' if q_.text|length > 100 }}</td>
+        <td>{{ q_.subject_name }} <span style="color:var(--text-faint);">/ {{ q_.topic_name }}</span></td>
+        <td><span class="badge pill-diff-{{ q_.difficulty }}">{{ q_.difficulty }}</span></td>
+        <td class="mono">{{ q_.marks }}</td>
+        <td style="display:flex;gap:6px;">
+          <a class="btn btn-sm" href="{{ url_for('admin.question_edit', question_id=q_.id) }}">Edit</a>
+          <form class="inline" method="post" action="{{ url_for('admin.question_delete', question_id=q_.id) }}" onsubmit="return confirm('Delete this question?');">
+            <button class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5"><div class="empty-note">No questions match your filters.</div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% if topic_id %}
+<a class="btn btn-primary" style="margin-top:14px;" href="{{ url_for('admin.question_new', topic_id=topic_id) }}">+ New question in this topic</a>
+{% endif %}
+{% endblock %}

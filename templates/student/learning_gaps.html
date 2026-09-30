@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Learning Gaps — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Learning Gaps</h1><div class="meta">Real analysis of your accuracy, by topic and by difficulty — not just a label</div></div></div>
+{% if gaps %}
+  {% for g in gaps %}
+  <div class="gap-card gap-{{ g.severity }}">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span class="badge {{ 'badge-coral' if g.severity=='High' else ('badge-amber' if g.severity=='Medium' else 'badge-teal') }}">{{ g.severity }}</span>
+        <strong style="margin-left:8px;">{{ g.topic_name }}</strong>
+        <span style="color:var(--text-faint);font-size:12.5px;"> &middot; {{ g.subject_name }}</span>
+      </div>
+      <a class="btn btn-sm" href="{{ url_for('student.topic_detail', topic_id=g.topic_id) }}">Work on this &rarr;</a>
+    </div>
+    <p style="margin:8px 0 6px;">{{ g.observed_issue }}</p>
+    {% if g.suggested_actions %}
+    <ul style="margin:0;padding-left:18px;color:var(--text-dim);font-size:13px;">
+      {% for a in g.suggested_actions %}<li>{{ a }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card"><div class="empty-note">No active learning gaps detected — keep attempting practice questions and we'll flag any weak spots here.</div></div>
+{% endif %}
+{% endblock %}

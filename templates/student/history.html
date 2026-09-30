@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}History — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Practice &amp; Assessment History</h1><div class="meta">Every attempt you've submitted</div></div></div>
+<div class="tabs">
+  <a class="tab {{ 'active' if not kind }}" href="{{ url_for('student.history') }}">All</a>
+  <a class="tab {{ 'active' if kind=='practice' }}" href="{{ url_for('student.history', kind='practice') }}">Practice</a>
+  <a class="tab {{ 'active' if kind=='quiz' }}" href="{{ url_for('student.history', kind='quiz') }}">Quizzes</a>
+  <a class="tab {{ 'active' if kind=='assessment' }}" href="{{ url_for('student.history', kind='assessment') }}">Assessments</a>
+</div>
+<div class="card">
+  {% if attempts %}
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Title</th><th>Subject</th><th>Type</th><th>Score</th><th>Accuracy</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for a in attempts %}
+      <tr>
+        <td><a href="{{ url_for('student.attempt_result', attempt_id=a.id) }}">{{ a.title }}</a></td>
+        <td>{{ a.subject_name or '—' }}</td>
+        <td><span class="badge badge-muted">{{ a.kind }}</span></td>
+        <td class="mono">{{ a.percentage }}%</td>
+        <td class="mono">{{ a.accuracy }}%</td>
+        <td style="color:var(--text-faint);">{{ a.submitted_at[:16] }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+    <div class="empty-note">No attempts here yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

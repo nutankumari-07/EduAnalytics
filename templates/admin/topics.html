@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ subject.name }} Topics — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('admin.subjects') }}">Subjects</a> / {{ subject.name }}</div>
+<div class="page-head">
+  <div><h1>{{ subject.name }} — Topics</h1><div class="meta">{{ topics|length }} topics</div></div>
+  <a class="btn btn-primary" href="{{ url_for('admin.topic_new', subject_id=subject.id) }}">+ New topic</a>
+</div>
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Topic</th><th>Difficulty</th><th>Questions</th><th>Materials</th><th></th></tr></thead>
+    <tbody>
+    {% for t in topics %}
+      <tr>
+        <td style="font-weight:700;">{{ t.name }}</td>
+        <td><span class="badge pill-diff-{{ t.difficulty }}">{{ t.difficulty }}</span></td>
+        <td class="mono">{{ t.question_count }}</td>
+        <td class="mono">{{ t.material_count }}</td>
+        <td style="display:flex;gap:6px;">
+          <a class="btn btn-sm" href="{{ url_for('admin.topic_edit', topic_id=t.id) }}">Edit</a>
+          <a class="btn btn-sm" href="{{ url_for('admin.materials', topic_id=t.id) }}">Materials</a>
+          <a class="btn btn-sm" href="{{ url_for('admin.questions', topic_id=t.id, subject_id=subject.id) }}">Questions</a>
+          <form class="inline" method="post" action="{{ url_for('admin.topic_delete', topic_id=t.id) }}" onsubmit="return confirm('Delete this topic and its questions/materials?');">
+            <button class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

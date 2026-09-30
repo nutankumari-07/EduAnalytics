@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Subjects — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Subjects</h1><div class="meta">{{ subjects|length }} subjects in the curriculum</div></div></div>
+<div class="course-grid">
+  {% for s in subjects %}
+  <a class="course-card" href="{{ url_for('student.subject_detail', subject_id=s.id) }}">
+    <div class="course-cover" style="background-image:url('{{ url_for('static', filename=s.image_path) }}');">
+      {% if s.enrolled %}<span class="badge badge-teal course-cover-badge badge" style="position:absolute;top:10px;right:10px;">Enrolled</span>{% endif %}
+    </div>
+    <div class="course-body">
+      <div class="course-title">{{ s.name }}</div>
+      <div class="course-desc">{{ s.description[:110] }}{{ '…' if s.description|length > 110 }}</div>
+      <div class="course-foot"><span>{{ s.topic_count }} topics</span><span class="badge badge-muted">{{ s.category }}</span></div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

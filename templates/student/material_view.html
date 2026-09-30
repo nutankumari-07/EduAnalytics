@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ material.title }} — EduAnalytics{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('student.topic_detail', topic_id=material.topic_id) }}">&larr; {{ material.topic_name }}</a></div>
+<div class="page-head">
+  <div><h1>{{ material.title }}</h1><div class="meta">{{ material.description }} &middot; ~{{ material.est_minutes }} min</div></div>
+  <form method="post" action="{{ url_for('student.material_complete', material_id=material.id) }}"><button class="btn btn-primary">Mark as complete</button></form>
+</div>
+
+<div class="card">
+  {% if material.type == 'notes' %}
+    {{ material.content|notes_format }}
+  {% elif material.url %}
+    <p>This material lives on an external, verified reference page:</p>
+    <a class="btn btn-primary" href="{{ material.url }}" target="_blank" rel="noopener">Open {{ material.type }} in a new tab &rarr;</a>
+  {% else %}
+    <div class="empty-note">No content attached to this material yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

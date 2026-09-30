@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% from "_charts.html" import hbars %}
+{% block title %}{{ student.name }} — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('admin.students') }}">Students</a> / {{ student.name }}</div>
+<div class="page-head">
+  <div><h1>{{ student.name }}</h1><div class="meta">{{ student.student_code }} &middot; {{ student.email }} &middot; {{ student.branch }}</div></div>
+  <form method="post" action="{{ url_for('admin.student_toggle_active', user_id=student.id) }}">
+    <button class="btn {{ 'btn-danger' if student.is_active else '' }}">{{ 'Deactivate account' if student.is_active else 'Reactivate account' }}</button>
+  </form>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card {{ 'accent-high' if prediction and prediction.level=='High' else ('accent-medium' if prediction and prediction.level=='Medium' else 'accent-low' if prediction else '') }}">
+    <div class="num">{{ prediction.level if prediction else '—' }}</div><div class="label">Predicted performance level</div>
+  </div>
+  <div class="stat-card"><div class="num">{{ (student.attendance_percentage ~ '%') if student.attendance_percentage is not none else '—' }}</div><div class="label">Attendance</div></div>
+  <div class="stat-card"><div class="num">{{ (student.study_hours_per_week ~ '') if student.study_hours_per_week is not none else '—' }}</div><div class="label">Study hours / week</div></div>
+  <div class="stat-card"><div class="num">{{ (student.previous_gpa ~ '') if student.previous_gpa is not none else '—' }}</div><div class="label">Previous GPA</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Subject-wise scores</h3>
+    {% if subject_scores %}{{ hbars(subject_scores, 'name', 'avg_score', label_width='200px', color='#7C8CF8') }}
+    {% else %}<div class="empty-note">No graded attempts yet.</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Why this prediction? (model confidence)</h3>
+    {% if prediction %}
+      {% for label, p in prediction.proba.items() %}
+      <div class="imp-bar-row">
+        <div class="imp-label">{{ label }}</div>
+        <div class="imp-track"><div class="imp-fill" style="width:{{ (p*100)|round(0)|int }}%;"></div></div>
+        <div class="mono">{{ (p*100)|round(0)|int }}%</div>
+      </div>
+      {% endfor %}
+      <h3 style="margin-top:1.3rem;">Top factors the model weighs for this student</h3>
+      {% for f in explanation %}
+      {% set mag = f.contribution if f.contribution >= 0 else -f.contribution %}
+      <div class="imp-bar-row">
+        <div class="imp-label">{{ f.feature.replace('_',' ')|title }}</div>
+        <div class="imp-track"><div class="imp-fill" style="width:{{ [(mag*220)|round(0)|int, 100]|min }}%; background:{{ '#22C4A6' if f.contribution > 0 else '#E0637A' }};"></div></div>
+        <div class="mono">{{ f.value|round(1) }}</div>
+      </div>
+      {% endfor %}
+      <div class="empty-note">Based on live per-student factor analysis against the cohort average — not a static, one-size-fits-all label.</div>
+    {% else %}
+      {% if activity and not activity.sufficient %}
+        <div class="empty-note"><strong>No prediction yet.</strong> To keep predictions honest we don't guess for new accounts. Still needed: {{ activity.missing|join(', ') }}.</div>
+      {% else %}<div class="empty-note">The prediction model hasn't been trained yet.</div>{% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:18px;">
+  <h3>Active learning gaps</h3>
+  {% if gaps %}
+    {% for g in gaps %}
+    <div class="gap-card gap-{{ g.severity }}">
+      <strong>{{ g.topic_name }}</strong> <span class="badge {{ 'badge-coral' if g.severity=='High' else ('badge-amber' if g.severity=='Medium' else 'badge-teal') }}" style="margin-left:6px;">{{ g.severity }}</span>
+      <p style="margin:6px 0 0;">{{ g.observed_issue }}</p>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-note">No weak areas flagged relative to this student's own history — keep up the consistent performance.</div>
+  {% endif %}
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Active recommendations</h3>
+    {% if recs %}
+      {% for r in recs %}
+      <div class="rec-item">
+        <div class="rec-subject">{{ r.title }}</div>
+        <div class="rec-reason">{{ r.reason }}</div>
+        {% if r.topic_name %}<div class="rec-topic"><strong>{{ r.topic_name }}</strong></div>{% endif %}
+      </div>
+      {% endfor %}
+    {% else %}<div class="empty-note">No active recommendations.</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Recent attempts</h3>
+    {% if attempts %}
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Title</th><th>Score</th><th>Date</th></tr></thead>
+        <tbody>{% for a in attempts %}<tr><td>{{ a.title }}</td><td class="mono">{{ a.percentage }}%</td><td style="color:var(--text-faint);">{{ a.submitted_at[:10] }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+    {% else %}<div class="empty-note">No attempts yet.</div>{% endif %}
+  </div>
+</div>
+
+{% endblock %}

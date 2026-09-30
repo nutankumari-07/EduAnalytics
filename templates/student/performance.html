@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_charts.html" import hbars %}
+{% block title %}Performance — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Performance</h1><div class="meta">Personalized performance overview</div></div></div>
+
+<div class="stat-row">
+  <div class="stat-card {{ 'accent-high' if prediction and prediction.level=='High' else ('accent-medium' if prediction and prediction.level=='Medium' else 'accent-low' if prediction else '') }}">
+    <div class="num">{{ prediction.level if prediction else '—' }}</div><div class="label">Predicted performance level</div>
+  </div>
+  <div class="stat-card"><div class="num">{{ (user.attendance_percentage ~ '%') if user.attendance_percentage is not none else '—' }}</div><div class="label">Attendance</div></div>
+  <div class="stat-card"><div class="num">{{ (user.study_hours_per_week ~ '') if user.study_hours_per_week is not none else '—' }}</div><div class="label">Study hours / week</div></div>
+  <div class="stat-card"><div class="num">{{ (user.previous_gpa ~ '') if user.previous_gpa is not none else '—' }}</div><div class="label">Previous GPA</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Subject-wise average score</h3>
+    {% if subject_scores %}{{ hbars(subject_scores, 'name', 'avg_score', label_width='200px', color='#22C4A6') }}
+    {% else %}<div class="empty-note">Attempt some practice questions to see your subject-wise scores here.</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Why this level?</h3>
+    {% if prediction %}
+      <div class="empty-note" style="margin-bottom:8px;">Likelihood of each level</div>
+      {% for label, p in prediction.proba.items() %}
+      <div class="imp-bar-row">
+        <div class="imp-label">{{ label }}</div>
+        <div class="imp-track"><div class="imp-fill" style="width:{{ (p*100)|round(0)|int }}%;"></div></div>
+        <div class="mono">{{ (p*100)|round(0)|int }}%</div>
+      </div>
+      {% endfor %}
+      <h3 style="margin-top:1.3rem;">Top factors for you</h3>
+      {% for f in explanation %}
+      <div class="imp-bar-row">
+        <div class="imp-label">{{ f.feature.replace('_',' ')|title }}</div>
+        {% set mag = f.contribution if f.contribution >= 0 else -f.contribution %}
+        <div class="imp-track"><div class="imp-fill" style="width:{{ [(mag*220)|round(0)|int, 100]|min }}%; background:{{ '#22C4A6' if f.contribution > 0 else '#E0637A' }};"></div></div>
+        <div class="mono">{{ f.value|round(1) }}</div>
+      </div>
+      {% endfor %}
+      <div class="empty-note">Green bars are pulling your predicted level up; red bars are pulling it down, relative to the cohort average.</div>
+    {% else %}
+      {% if activity and not activity.sufficient %}
+        <div class="empty-note"><strong>No prediction yet.</strong> To keep predictions honest we don't guess for new accounts. Still needed: {{ activity.missing|join(', ') }}.</div>
+      {% else %}<div class="empty-note">The prediction model hasn't been trained yet.</div>{% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

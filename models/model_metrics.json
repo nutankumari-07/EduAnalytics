@@ -1,0 +1,232 @@
+{
+  "model_name": "Logistic Regression",
+  "selection_criterion": "Highest weighted F1-score (near-ties broken by cross-validation stability: CV F1 mean \u2212 std)",
+  "selection_reason": "2 models were within 0.5 pt of the best weighted F1 (76.32%). Tie-break by cross-validation stability (CV weighted-F1 mean minus std): Logistic Regression (F1 75.96%) scored 76.4 (CV mean 78.49%, std 2.05 pts) versus Extra Trees (F1 76.32%, CV score 74.1). Cross-validated weighted F1 is 78.49% (std 2.05 pts), consistent with the test-set score.",
+  "library": "scikit-learn 1.8.0",
+  "target": "performance_level (Low / Medium / High) \u2014 overall student performance, not per-topic gaps",
+  "trained_at": "2026-09-28 19:14:52",
+  "dataset_source": "student database (features) + student_outcomes (target)",
+  "dataset_size": 1001,
+  "train_size": 800,
+  "test_size": 201,
+  "cv_folds": 5,
+  "split": "stratified 80/20, random_state=42",
+  "preprocessing": "StandardScaler (applied to every model)",
+  "features": [
+    "attendance_percentage",
+    "study_hours_per_week",
+    "previous_gpa",
+    "quiz_avg",
+    "practice_accuracy",
+    "assessment_avg",
+    "avg_topic_score",
+    "material_completion_pct"
+  ],
+  "feature_labels": {
+    "attendance_percentage": "Attendance %",
+    "study_hours_per_week": "Study hours / week",
+    "previous_gpa": "Previous GPA (out of 10)",
+    "quiz_avg": "Quiz average %",
+    "practice_accuracy": "Practice accuracy %",
+    "assessment_avg": "Assessment average %",
+    "avg_topic_score": "Average topic score %",
+    "material_completion_pct": "Learning-material completion %"
+  },
+  "labels": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "accuracy": 0.7612,
+  "precision": 0.7624,
+  "recall": 0.7612,
+  "f1": 0.7596,
+  "cv_f1_mean": 0.7849,
+  "cv_f1_std": 0.0205,
+  "cv_accuracy_mean": 0.7863,
+  "per_class": [
+    {
+      "label": "Low",
+      "precision": 0.8,
+      "recall": 0.7547,
+      "f1": 0.7767,
+      "support": 53
+    },
+    {
+      "label": "Medium",
+      "precision": 0.7456,
+      "recall": 0.8173,
+      "f1": 0.7798,
+      "support": 104
+    },
+    {
+      "label": "High",
+      "precision": 0.7568,
+      "recall": 0.6364,
+      "f1": 0.6914,
+      "support": 44
+    }
+  ],
+  "confusion_matrix": [
+    [
+      40,
+      13,
+      0
+    ],
+    [
+      10,
+      85,
+      9
+    ],
+    [
+      0,
+      16,
+      28
+    ]
+  ],
+  "class_distribution": {
+    "Low": 263,
+    "Medium": 519,
+    "High": 219
+  },
+  "feature_importance": [
+    {
+      "feature": "practice_accuracy",
+      "label": "Practice accuracy %",
+      "importance": 0.2537
+    },
+    {
+      "feature": "material_completion_pct",
+      "label": "Learning-material completion %",
+      "importance": 0.1572
+    },
+    {
+      "feature": "avg_topic_score",
+      "label": "Average topic score %",
+      "importance": 0.1512
+    },
+    {
+      "feature": "previous_gpa",
+      "label": "Previous GPA (out of 10)",
+      "importance": 0.1252
+    },
+    {
+      "feature": "study_hours_per_week",
+      "label": "Study hours / week",
+      "importance": 0.1081
+    },
+    {
+      "feature": "assessment_avg",
+      "label": "Assessment average %",
+      "importance": 0.1065
+    },
+    {
+      "feature": "attendance_percentage",
+      "label": "Attendance %",
+      "importance": 0.0581
+    },
+    {
+      "feature": "quiz_avg",
+      "label": "Quiz average %",
+      "importance": 0.04
+    }
+  ],
+  "feature_importance_method": "native (mean absolute coefficient on scaled features)",
+  "model_comparison": [
+    {
+      "name": "Extra Trees",
+      "selected": false,
+      "accuracy": 0.7662,
+      "precision": 0.7747,
+      "recall": 0.7662,
+      "f1": 0.7632,
+      "cv_f1_mean": 0.7677,
+      "cv_f1_std": 0.0267,
+      "cv_accuracy_mean": 0.77
+    },
+    {
+      "name": "Logistic Regression",
+      "selected": true,
+      "accuracy": 0.7612,
+      "precision": 0.7624,
+      "recall": 0.7612,
+      "f1": 0.7596,
+      "cv_f1_mean": 0.7849,
+      "cv_f1_std": 0.0205,
+      "cv_accuracy_mean": 0.7863
+    },
+    {
+      "name": "Gradient Boosting",
+      "selected": false,
+      "accuracy": 0.7512,
+      "precision": 0.7544,
+      "recall": 0.7512,
+      "f1": 0.7506,
+      "cv_f1_mean": 0.7567,
+      "cv_f1_std": 0.0187,
+      "cv_accuracy_mean": 0.7575
+    },
+    {
+      "name": "SVM",
+      "selected": false,
+      "accuracy": 0.7512,
+      "precision": 0.7551,
+      "recall": 0.7512,
+      "f1": 0.7494,
+      "cv_f1_mean": 0.7791,
+      "cv_f1_std": 0.0337,
+      "cv_accuracy_mean": 0.7812
+    },
+    {
+      "name": "Naive Bayes",
+      "selected": false,
+      "accuracy": 0.7313,
+      "precision": 0.7388,
+      "recall": 0.7313,
+      "f1": 0.731,
+      "cv_f1_mean": 0.7346,
+      "cv_f1_std": 0.0105,
+      "cv_accuracy_mean": 0.735
+    },
+    {
+      "name": "Random Forest",
+      "selected": false,
+      "accuracy": 0.7313,
+      "precision": 0.7328,
+      "recall": 0.7313,
+      "f1": 0.7302,
+      "cv_f1_mean": 0.7663,
+      "cv_f1_std": 0.0194,
+      "cv_accuracy_mean": 0.7675
+    },
+    {
+      "name": "KNN",
+      "selected": false,
+      "accuracy": 0.7313,
+      "precision": 0.7327,
+      "recall": 0.7313,
+      "f1": 0.7302,
+      "cv_f1_mean": 0.7512,
+      "cv_f1_std": 0.0237,
+      "cv_accuracy_mean": 0.7525
+    },
+    {
+      "name": "Decision Tree",
+      "selected": false,
+      "accuracy": 0.6766,
+      "precision": 0.6782,
+      "recall": 0.6766,
+      "f1": 0.6768,
+      "cv_f1_mean": 0.7446,
+      "cv_f1_std": 0.0184,
+      "cv_accuracy_mean": 0.745
+    }
+  ],
+  "models_skipped": [
+    {
+      "name": "XGBoost",
+      "reason": "xgboost package is not installed in this environment"
+    }
+  ],
+  "min_activity_for_prediction": "\u22651 quiz, \u22651 practice, \u22651 assessment, \u22653 scored topics, \u22656 attempts"
+}

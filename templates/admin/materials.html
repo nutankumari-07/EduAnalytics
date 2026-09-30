@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name }} Materials — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('admin.subjects') }}">Subjects</a> / <a href="{{ url_for('admin.topics', subject_id=topic.subject_id) }}">{{ topic.subject_name }}</a> / {{ topic.name }}</div>
+<div class="page-head">
+  <div><h1>{{ topic.name }} — Materials</h1><div class="meta">{{ materials|length }} materials</div></div>
+  <a class="btn btn-primary" href="{{ url_for('admin.material_new', topic_id=topic.id) }}">+ New material</a>
+</div>
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Title</th><th>Type</th><th>Link / Content</th><th>Minutes</th><th></th></tr></thead>
+    <tbody>
+    {% for m in materials %}
+      <tr>
+        <td style="font-weight:700;">{{ m.title }}{% if m.is_recommended %} <span class="badge badge-teal">Recommended</span>{% endif %}</td>
+        <td><span class="badge badge-muted">{{ m.type }}</span></td>
+        <td>{% if m.url %}<a href="{{ m.url }}" target="_blank" style="color:var(--teal);">Open link &rarr;</a>{% elif m.content %}<span style="color:var(--text-faint);">In-app content ({{ m.content|length }} chars)</span>{% else %}<span style="color:var(--text-faint);">—</span>{% endif %}</td>
+        <td class="mono">{{ m.est_minutes }}</td>
+        <td style="display:flex;gap:6px;">
+          <a class="btn btn-sm" href="{{ url_for('admin.material_edit', material_id=m.id) }}">Edit</a>
+          <form class="inline" method="post" action="{{ url_for('admin.material_delete', material_id=m.id) }}" onsubmit="return confirm('Delete this material?');">
+            <button class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

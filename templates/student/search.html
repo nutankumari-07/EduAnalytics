@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Search — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Search results for "{{ query }}"</h1></div></div>
+{% if not query %}
+  <div class="card"><div class="empty-note">Type something in the search box above to find subjects, topics or materials.</div></div>
+{% else %}
+  <div class="card" style="margin-bottom:16px;">
+    <h3>Subjects ({{ subjects|length }})</h3>
+    {% for s in subjects %}<a href="{{ url_for('student.subject_detail', subject_id=s.id) }}" style="display:block;padding:8px 0;border-bottom:1px solid var(--border-soft);">{{ s.name }}</a>{% else %}<div class="empty-note">No matches.</div>{% endfor %}
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <h3>Topics ({{ topics|length }})</h3>
+    {% for t in topics %}<a href="{{ url_for('student.topic_detail', topic_id=t.id) }}" style="display:block;padding:8px 0;border-bottom:1px solid var(--border-soft);">{{ t.name }} <span style="color:var(--text-faint);font-size:12px;">— {{ t.subject_name }}</span></a>{% else %}<div class="empty-note">No matches.</div>{% endfor %}
+  </div>
+  <div class="card">
+    <h3>Materials ({{ materials|length }})</h3>
+    {% for m in materials %}<a href="{{ url_for('student.material_view', material_id=m.id) }}" style="display:block;padding:8px 0;border-bottom:1px solid var(--border-soft);">{{ m.title }} <span style="color:var(--text-faint);font-size:12px;">— {{ m.topic_name }}</span></a>{% else %}<div class="empty-note">No matches.</div>{% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

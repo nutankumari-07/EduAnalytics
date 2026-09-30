@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Welcome back, {{ user.name.split(' ')[0] }}</h1>
+    <div class="meta">{{ user.branch }} &middot; Semester {{ user.semester }} &middot; {{ user.student_code }}</div>
+  </div>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card {{ 'accent-high' if prediction and prediction.level=='High' else ('accent-medium' if prediction and prediction.level=='Medium' else 'accent-low' if prediction else '') }}">
+    <div class="num">{{ prediction.level if prediction else '—' }}</div>
+    <div class="label">Predicted performance level</div>
+    {% if not prediction and activity and not activity.sufficient %}<div style="font-size:11.5px;color:var(--text-faint);margin-top:4px;">Needs more activity: {{ activity.missing|join(', ') }}</div>{% endif %}
+  </div>
+  <div class="stat-card"><div class="num">{{ avg_score }}%</div><div class="label">Average score</div></div>
+  <div class="stat-card"><div class="num">{{ attempts_done }}</div><div class="label">Attempts completed</div></div>
+  <div class="stat-card {{ 'accent-low' if active_gaps > 0 }}"><div class="num">{{ active_gaps }}</div><div class="label">Active learning gaps</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Your subjects</h3>
+    {% if subjects %}
+      {% for s in subjects[:4] %}
+      <a href="{{ url_for('student.subject_detail', subject_id=s.id) }}" style="display:block;padding:11px 0;border-bottom:1px solid var(--border-soft);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <strong style="font-size:13.8px;">{{ s.name }}</strong>
+          <span class="mono" style="font-size:12px;color:var(--text-faint);">{{ s.progress_pct|round|int }}%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:{{ s.progress_pct }}%;"></div></div>
+      </a>
+      {% endfor %}
+      <a href="{{ url_for('student.subjects') }}" style="display:inline-block;margin-top:12px;font-size:12.8px;color:var(--teal);font-weight:700;">View all subjects &rarr;</a>
+    {% else %}
+      <div class="empty-note">You're not enrolled in any subjects yet. <a href="{{ url_for('student.subjects') }}" style="color:var(--teal);">Browse subjects</a> to get started.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h3>Recommended for you</h3>
+    {% if recs %}
+      {% for r in recs %}
+      <div class="rec-item">
+        <div class="rec-subject">{{ r.title }}</div>
+        <div class="rec-reason">{{ r.reason }}</div>
+        <a href="{{ r.action_url }}" style="font-size:12.6px;color:var(--teal);font-weight:700;">{{ r.action_label }} &rarr;</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-note">No recommendations yet — attempt a few practice questions and we'll personalize this for you.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Recent activity</h3>
+    {% if recent %}
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Title</th><th>Subject</th><th>Score</th><th>Date</th></tr></thead>
+        <tbody>
+        {% for a in recent %}
+          <tr>
+            <td><a href="{{ url_for('student.attempt_result', attempt_id=a.id) }}">{{ a.title }}</a></td>
+            <td>{{ a.subject_name or '—' }}</td>
+            <td class="mono">{{ a.percentage }}%</td>
+            <td style="color:var(--text-faint);">{{ a.submitted_at[:10] }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+    {% else %}
+      <div class="empty-note">No attempts yet. Pick a subject and start practicing.</div>
+    {% endif %}
+  </div>
+
+  <div class="card" id="notifications">
+    <h3>Notifications</h3>
+    {% if notifications %}
+      {% for n in notifications %}
+        <div class="notif-item {{ 'unread' if not n.is_read }}">
+          <strong>{{ n.title }}</strong><br>{{ n.message }}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-note">You're all caught up.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

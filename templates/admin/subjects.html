@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Subjects — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Subjects</h1><div class="meta">{{ subjects|length }} subjects in the curriculum</div></div>
+  <a class="btn btn-primary" href="{{ url_for('admin.subject_new') }}">+ New subject</a>
+</div>
+<div class="card">
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Cover</th><th>Name</th><th>Category</th><th>Topics</th><th>Enrolled</th><th></th></tr></thead>
+    <tbody>
+    {% for s in subjects %}
+      <tr>
+        <td><div style="width:56px;height:36px;border-radius:6px;background-size:cover;background-position:center;background-image:url('{{ url_for('static', filename=s.image_path) }}');"></div></td>
+        <td><a href="{{ url_for('admin.topics', subject_id=s.id) }}" style="font-weight:700;">{{ s.name }}</a></td>
+        <td>{{ s.category }}</td>
+        <td class="mono">{{ s.topic_count }}</td>
+        <td class="mono">{{ s.enrolled_count }}</td>
+        <td style="display:flex;gap:6px;">
+          <a class="btn btn-sm" href="{{ url_for('admin.subject_edit', subject_id=s.id) }}">Edit</a>
+          <a class="btn btn-sm" href="{{ url_for('admin.topics', subject_id=s.id) }}">Topics</a>
+          <form class="inline" method="post" action="{{ url_for('admin.subject_delete', subject_id=s.id) }}" onsubmit="return confirm('Delete this subject and all its topics/questions?');">
+            <button class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

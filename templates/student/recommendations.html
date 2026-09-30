@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Recommendations — EduAnalytics{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Recommendations</h1><div class="meta">Personalized next steps based on your learning gaps and progress</div></div></div>
+<div class="card">
+  {% if recs %}
+    {% for r in recs %}
+    <div class="rec-item">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="rec-subject">{{ r.title }}</div>
+        <span class="badge badge-muted">{{ r.kind.replace('_',' ') }}</span>
+      </div>
+      <div class="rec-reason">{{ r.reason }}</div>
+      <a href="{{ r.action_url }}" class="btn btn-sm btn-primary">{{ r.action_label }}</a>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-note">Nothing to recommend yet — start practicing so we can personalize this for you.</div>
+  {% endif %}
+</div>
+{% endblock %}

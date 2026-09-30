@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name }} — EduAnalytics{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('student.subjects') }}">Subjects</a> / <a href="{{ url_for('student.subject_detail', subject_id=topic.subject_id) }}">{{ topic.subject_name }}</a> / {{ topic.name }}</div>
+<div class="page-head">
+  <div>
+    <h1>{{ topic.name }} <span class="badge pill-diff-{{ topic.difficulty }}">{{ topic.difficulty }}</span></h1>
+    <div class="meta">{{ topic.description }}</div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <form method="post" action="{{ url_for('student.practice_start', topic_id=topic.id) }}"><button class="btn">Practice</button></form>
+    {% if quiz %}<form method="post" action="{{ url_for('student.quiz_start', quiz_id=quiz.id) }}"><button class="btn btn-primary">Take quiz</button></form>{% endif %}
+  </div>
+</div>
+
+{% if gap %}
+<div class="gap-card gap-{{ gap.severity }}">
+  <div style="display:flex;justify-content:space-between;"><strong>{{ gap.severity }}-severity learning gap detected</strong><span class="mono" style="color:var(--text-faint);">{{ gap.score }}%</span></div>
+  <p style="margin:6px 0;">{{ gap.observed_issue }}</p>
+  {% if suggested_actions %}<ul style="margin:0;padding-left:18px;color:var(--text-dim);font-size:13px;">{% for a in suggested_actions %}<li>{{ a }}</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endif %}
+
+{% if progress %}
+<div class="card" style="margin-bottom:18px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <strong>Your progress</strong><span class="mono">{{ progress.progress_pct }}%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" style="width:{{ progress.progress_pct }}%;"></div></div>
+  <div class="meta" style="margin-top:8px;">{{ progress.materials_done }}/{{ progress.materials_total }} materials complete &middot; {{ progress.answers_correct }}/{{ progress.answers_graded }} correct answers</div>
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>Learning materials</h3>
+  {% for m in materials %}
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);">
+    <div>
+      <div style="font-weight:700;font-size:13.8px;">
+        <span class="badge badge-muted" style="margin-right:6px;">{{ m.type }}</span>{{ m.title }}
+        {% if m.done %}<span class="badge badge-teal" style="margin-left:6px;">Done</span>{% endif %}
+      </div>
+      <div style="font-size:12.4px;color:var(--text-faint);margin-top:3px;">{{ m.description }} &middot; ~{{ m.est_minutes }} min</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      {% if m.type == 'practice' %}
+        <form method="post" action="{{ url_for('student.practice_start', topic_id=topic.id) }}"><button class="btn btn-sm">Start</button></form>
+      {% else %}
+        <a class="btn btn-sm" href="{{ url_for('student.material_view', material_id=m.id) }}">{{ 'Review' if m.done else 'Open' }}</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

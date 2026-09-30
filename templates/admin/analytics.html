@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_charts.html" import donut, hbars, linechart %}
+{% block title %}Results & Analytics — EduAnalytics Admin{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Results &amp; Analytics</h1><div class="meta">Live, database-driven — nothing here is hard-coded</div></div></div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Performance level distribution</h3>
+    {{ donut([('Low', level_dist.Low, '#E0637A'), ('Medium', level_dist.Medium, '#E0A23B'), ('High', level_dist.High, '#22C4A6')]) }}
+    {% if level_dist.Pending %}<div class="empty-note">{{ level_dist.Pending }} student(s) are not shown: not enough activity or profile data for a prediction yet.</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Average score by subject</h3>
+    {% if by_subject %}{{ hbars(by_subject, 'name', 'avg_score', 'attempts', ' attempts') }}{% else %}<div class="empty-note">No submitted attempts yet.</div>{% endif %}
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Score trend (last 14 active days)</h3>
+    {% if trend %}{{ linechart(trend, 'day', 'avg_score') }}{% else %}<div class="empty-note">Not enough attempt history yet.</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>By attempt type</h3>
+    {% for k in by_kind %}
+    <div class="imp-bar-row">
+      <div class="imp-label">{{ k.kind|capitalize }} ({{ k.c }})</div>
+      <div class="imp-track"><div class="imp-fill" style="width:{{ k.avg_score }}%;"></div></div>
+      <div class="mono">{{ k.avg_score }}%</div>
+    </div>
+    {% else %}<div class="empty-note">No attempts yet.</div>{% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <h3>Most common weak topics</h3>
+  {% if weak_topics %}
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Topic</th><th>Subject</th><th>Students affected</th><th>Avg gap score</th></tr></thead>
+    <tbody>{% for w in weak_topics %}<tr><td>{{ w.name }}</td><td>{{ w.subject_name }}</td><td class="mono">{{ w.c }}</td><td class="mono">{{ w.avg_score }}%</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}
+    <div class="empty-note">No active learning gaps recorded — nothing weak to report right now.</div>
+  {% endif %}
+</div>
+
+{% endblock %}
